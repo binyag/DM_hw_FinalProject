@@ -220,18 +220,8 @@ def prepare_data(df):
     
   df = df.loc[(df['City'] != 'דימונה') | (df['price'] < 6000000)]
   df = df.loc[(df['City'] != 'ראשון לציון') | (df['price'] < 5000000)]
-
-  # Filter the dataframe for rows where the city is "Hod Hasharon"
-  #df_hod_hasharon = df[df['City'] == 'הוד השרון']
-
-# Drop duplicates based on the specified columns, keeping the first occurrence
-  #df_hod_hasharon.drop_duplicates(subset=['type', 'room_number', 'Area'], keep='first', inplace=True)
-
-# Combine the filtered Hod Hasharon dataframe with the remaining rows from other cities
- # df = pd.concat([df_hod_hasharon, df[df['City'] != 'הוד השרון']], ignore_index=True)
   return df
 
 
 
 df  = prepare_data(df)
-df['City']#.uniqe()
