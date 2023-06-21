@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,15 +21,13 @@ from sklearn.base import BaseEstimator, TransformerMixin
 import sklearn
 import subprocess
 from madlan_data_prep import prepare_data
-#df.groupby('type').apply(lambda x: (x['Area'] / x['room_number']).mean())
+
 path = 'https://github.com/binyag/DM_hw_FinalProject/raw/main/output_all_students_Train_v10.xlsx'
 df = pd.read_excel(path)
 df = prepare_data(df)
 dft_path = "https://github.com/binyag/DM_hw_FinalProject/raw/main/Dataset_for_test.xlsx"
 dft = pd.read_excel(dft_path)
 dft = prepare_data(dft)
-
-
 
 
 # Define the target column
@@ -51,9 +48,6 @@ cat_cols = ['City', 'type' , 'hasElevator',
 columns_to_fill = ['city_area','condition']
 
 # Fill missing values in selected categorical columns
-X_train[columns_to_fill] = X_train[columns_to_fill].fillna('לא צויין')
-X_test[columns_to_fill] = X_test[columns_to_fill].fillna('לא צויין')
-
 
 cat_pipeline = Pipeline([
     ('one_hot_encoding', OneHotEncoder(sparse=False, handle_unknown='ignore',drop='if_binary'))
@@ -61,9 +55,15 @@ cat_pipeline = Pipeline([
 
 # Numerical columns
 num_cols = ['room_number', 'Area', 'floor']
+mean_ratio = df.groupby('type').apply(lambda x: round((x['Area'] / x['room_number']).mean() * 2) / 2)
+X_train['room_number'] = X_train.apply(lambda x: np.round(
+    x['Area'] / mean_ratio[x['type']] * 2) / 2 if pd.isnull(x['room_number']) else
+    x['room_number'], axis=1)
+X_train['Area'] = X_train.apply(lambda x: np.round(x['room_number']
+* mean_ratio[x['type']]) if pd.isnull(x['Area']) else x['Area'], axis=1)
 
-X_train['room_number'] = X_train['room_number'].fillna(X_train['Area'].apply(lambda x: np.round(x / 26 * 2) / 2))
-X_train['Area'] = X_train['Area'].fillna(X_train['room_number'].apply(lambda x: np.round(x * 26)))
+#X_train['room_number'] = X_train['room_number'].fillna(X_train['Area'].apply(lambda x: np.round(x / 26 * 2) / 2))
+#X_train['Area'] = X_train['Area'].fillna(X_train['room_number'].apply(lambda x: np.round(x * 26)))
 num_pipeline = Pipeline([('numerical_imputation', SimpleImputer(strategy='median')),
     ('scaling', StandardScaler())
 ])
@@ -83,7 +83,8 @@ cv = sklearn.model_selection.KFold(n_splits=10, shuffle=True, random_state=13)
 cv_scores = cross_val_score(pipe_preprocessing_model, X_train, y_train, cv=cv, scoring="neg_mean_squared_error")
 #mse KFold
 kfold_mse  = np.abs(cv_scores.mean())
-print(f"MSE KFold: {np.round(kfold_mse, 1)}")
+kfold_std = cv_scores.std()
+print(f"MSE KFold: {np.round(kfold_mse, 1)} kFold std {kfold_std}")
 # Fit the pipeline to the training data
 pipe_preprocessing_model.fit(X_train, y_train)
 
