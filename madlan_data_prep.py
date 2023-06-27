@@ -102,6 +102,7 @@ path = 'https://github.com/binyag/DM_hw_FinalProject/raw/main/output_all_student
 df = pd.read_excel(path)
 def prepare_data(df):
   df.columns = df.columns.str.strip()
+  x =df.columns
   """תיקון עמודת עיר והסרת רווחים מיותרים"""
 
   df['City'] = df['City'].str.replace('נהרייה', 'נהריה')
@@ -211,6 +212,9 @@ def prepare_data(df):
     
   df = df.loc[(df['City'] != 'דימונה') | (df['price'] < 6000000)]
   df = df.loc[(df['City'] != 'ראשון לציון') | (df['price'] < 5000000)]
-  return df
+  column_to_model  = ['City', 'type', 'room_number', 'Area','city_area',
+        'price',   'hasElevator','hasParking',  'hasStorage', 'condition', 
+         'hasBalcony', 'hasMamad', 'handicapFriendly', 'floor',  'big_ratio']
+  return df[column_to_model]
 
 df  = prepare_data(df)

@@ -31,16 +31,11 @@ dft = prepare_data(dft)
 
 
 # Define the target column
-target_col = 'price'
-column_to_model  = ['City', 'type', 'room_number', 'Area', 'city_area', 'hasElevator',
-       'hasParking', 'hasBars', 'hasStorage', 'condition', 'hasAirCondition',
-       'hasBalcony', 'hasMamad', 'handicapFriendly', 'floor',  'big_ratio']
-# Split the data into features and targets
-X_train = df[column_to_model]
-y_train = df[target_col]
-#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
-X_test = dft[column_to_model]
-y_test = dft[target_col]
+
+X_train = df.drop('price' ,axis=1)
+y_train = df.price
+X_test = dft.drop('price' ,axis=1)
+y_test = dft.price
 # Categorical columns
 cat_cols = ['City', 'type' , 'hasElevator',
             'hasParking',  'hasStorage', 'condition', 
@@ -113,7 +108,7 @@ score_model(y_test, y_pred, "linear_model.ElasticNetCV")
 
 
 """
-הדפסת משקלים
+הדפסת משקלים של המודל
 # Get the feature names from the column transformer
 feature_names = column_transformer.named_transformers_['categorical_preprocessing'].named_steps['one_hot_encoding'].get_feature_names_out(cat_cols)
 feature_names = np.concatenate([num_cols, feature_names])
